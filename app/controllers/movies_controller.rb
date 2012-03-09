@@ -7,19 +7,61 @@ class MoviesController < ApplicationController
   end
 
   def index
-    sortorder = ''
-    sortorder = params[:SortOrder]
-    @title_hilite = :no_hilite
-    @release_date_hilite = :no_hilite
+  
+    # Construct view attributes from session hash
+    if params[:SortOrder] == nil 
+      sortorder = session[:SortOrder]
+    else 
+      sortorder = params[:SortOrder]
+      session[:SortOrder] = sortorder
+    end
+    
+    if params[:commit] == nil
+      filters = session[:Filters]
+    else
+      filters = Hash.new
+      if params[:ratings] == nil     # if no boxes are checked, select all
+        Movie.group('rating').each do |m|
+          filters[m.rating] = '1'
+        end
+      else                           # if some boxes are checked, select only checked boxes
+        Movie.group('rating').each do |m|
+          filters[m.rating] = '0' 
+        end
+        params[:ratings].each_key do |key|
+          filters[key] = '1'
+        end
+      end
+      session[:Filters] = filters
+    end
+             
+    #  Based upon sortorder, highlight the header
     if sortorder == 'title'
       @title_hilite = :hilite
-      @movies = Movie.order(sortorder).all
+      @release_date_hilite = :no_hilite
     elsif sortorder == 'release_date'
+      @title_hilite = :no_hilite
       @release_date_hilite = :hilite
-      @movies = Movie.order(sortorder).all
     else
-      @movies = Movie.all
+      @title_hilite = :no_hilite
+      @release_date_hilite = :no_hilite
     end
+    
+    #  Based upon filter, set the state of checkboxes
+    @all_ratings = filters
+    
+    #  Based upon sortorder and filters, select movies to display
+    whereclause = Array.new
+    filters.each do |k, v|
+      if v == '1'
+        whereclause << k
+      end
+    end
+    puts 'whereclause coming'
+    puts session
+    puts 'whereclause gone'
+    @movies = Movie.order(sortorder).where(:rating => whereclause).all 
+
   end
 
   def new
