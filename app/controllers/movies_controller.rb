@@ -13,10 +13,10 @@ class MoviesController < ApplicationController
     @release_date_hilite = :no_hilite
     if sortorder == 'title'
       @title_hilite = :hilite
-      @movies = Movie.all.sort_by &:title
+      @movies = Movie.order(sortorder).all
     elsif sortorder == 'release_date'
       @release_date_hilite = :hilite
-      @movies = Movie.all.sort_by &:release_date
+      @movies = Movie.order(sortorder).all
     else
       @movies = Movie.all
     end
