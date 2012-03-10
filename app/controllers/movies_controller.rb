@@ -65,7 +65,9 @@ class MoviesController < ApplicationController
       end
     end
 
-    @movies = Movie.order(sortorder).where(:rating => whereclause).all 
+    #@movies = Movie.order(sortorder).where(:rating => whereclause).all
+    @movies = Movie.order(sortorder).find(:all, :conditions => { :rating => whereclause })
+ 
 
   end
 
