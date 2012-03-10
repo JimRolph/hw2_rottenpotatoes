@@ -10,27 +10,30 @@ class MoviesController < ApplicationController
   
     # Construct view attributes from session hash
     if params[:SortOrder] == nil 
-      sortorder = session[:SortOrder]
+      if session[:SortOrder] == nil
+        sortorder = 'title'
+      else
+        sortorder = session[:SortOrder]
+      end
     else 
       sortorder = params[:SortOrder]
-      session[:SortOrder] = sortorder
     end
-  
+    session[:SortOrder] = sortorder
+    
     #  construct the filter hash for the view  
     filters = {'G' => '0',
                'PG' => '0',
                'PG-13' => '0',
                'R' => '0',
                'NC-17' => '0'}
-    if params[:commit] == nil
+    if params[:ratings] == nil
       if session[:Filters] == nil
       else
         filters = session[:Filters]
       end
-    else
-      if params[:ratings] == nil 
-      else                           
-        params[:ratings].each_key do |key|
+    else                           
+      params[:ratings].each do |key, value|
+        if value == '0' 
           filters[key] = '1'
         end
       end
@@ -38,12 +41,19 @@ class MoviesController < ApplicationController
     end
     
     #  It seems stupid, but let's be Restful
-    if (params[:SortOrder] == nil) && (sortorder != nil)
+    redirect_parameters = ""
+    if (params[:SortOrder] == nil) || (params[:ratings] == nil)
       redirect_parameters = "?SortOrder=" + sortorder
+      filters.each do |key, value|
+        if value == '1'
+          redirect_parameters = redirect_parameters + '&ratings[' + key + "]=0"
+        else
+          redirect_parameters = redirect_parameters + '&ratings[' + key + "]=1"
+        end
+      end
       redirect_to movies_path + redirect_parameters
     end
-      
-             
+                 
     #  Based upon sortorder, highlight the header
     if sortorder == 'title'
       @title_hilite = :hilite
