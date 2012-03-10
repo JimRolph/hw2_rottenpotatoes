@@ -36,6 +36,13 @@ class MoviesController < ApplicationController
       end
       session[:Filters] = filters
     end
+    
+    #  It seems stupid, but let's be Restful
+    if (params[:SortOrder] == nil) && (sortorder != nil)
+      redirect_parameters = "?SortOrder=" + sortorder
+      redirect_to movies_path + redirect_parameters
+    end
+      
              
     #  Based upon sortorder, highlight the header
     if sortorder == 'title'
