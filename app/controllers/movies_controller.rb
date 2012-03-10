@@ -16,13 +16,19 @@ class MoviesController < ApplicationController
       session[:SortOrder] = sortorder
     end
     
+    filters = Hash.new
     if params[:commit] == nil
-      filters = session[:Filters]
+      if session[:Filters] == nil
+        Movie.group('rating').each do |m|
+          filters[m.rating] = '0' 
+        end
+      else
+        filters = session[:Filters]
+      end
     else
-      filters = Hash.new
       if params[:ratings] == nil     # if no boxes are checked, select all
         Movie.group('rating').each do |m|
-          filters[m.rating] = '1'
+          filters[m.rating] = '0'
         end
       else                           # if some boxes are checked, select only checked boxes
         Movie.group('rating').each do |m|
@@ -57,9 +63,7 @@ class MoviesController < ApplicationController
         whereclause << k
       end
     end
-    puts 'whereclause coming'
-    puts session
-    puts 'whereclause gone'
+
     @movies = Movie.order(sortorder).where(:rating => whereclause).all 
 
   end
