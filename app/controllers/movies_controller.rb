@@ -20,7 +20,8 @@ class MoviesController < ApplicationController
     filters = Hash.new
     if params[:commit] == nil
       if session[:Filters] == nil
-        Movie.group('rating').each do |m|
+        #Movie.group('rating').each do |m|
+        Movie.find(:all, :group =>  :rating).each do |m|
           filters[m.rating] = '0' 
         end
       else
@@ -28,11 +29,13 @@ class MoviesController < ApplicationController
       end
     else
       if params[:ratings] == nil     # if no boxes are checked, select all
-        Movie.group('rating').each do |m|
+        #Movie.group('rating').each do |m|
+        Movie.find(:all, :group =>  :rating).each do |m|
           filters[m.rating] = '0'
         end
       else                           # if some boxes are checked, select only checked boxes
-        Movie.group('rating').each do |m|
+        #Movie.group('rating').each do |m|
+        Movie.find(:all, :group =>  :rating).each do |m|
           filters[m.rating] = '0' 
         end
         params[:ratings].each_key do |key|
