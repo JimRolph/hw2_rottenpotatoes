@@ -15,7 +15,8 @@ class MoviesController < ApplicationController
       sortorder = params[:SortOrder]
       session[:SortOrder] = sortorder
     end
-    
+  
+    #  construct the filter hash for the view  
     filters = Hash.new
     if params[:commit] == nil
       if session[:Filters] == nil
